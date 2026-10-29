@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vitality Now | Ex 11 Database Integration in Node.js Application Using MongoDB</title><style>
+:root{--forest:#1b3823;--leaf:#2c5e3b;--sprout:#4ca165;--mint:#e8f5e9;--ink:#1f2a22;--clay:#b8561f}
+*{box-sizing:border-box;margin:0;padding:0;font-family:Georgia,Garamond,serif}
+body{background:var(--mint);color:var(--ink);line-height:1.55}
+header{background:linear-gradient(var(--forest),var(--leaf));color:#fff;padding:26px 24px 22px}
+header .logo{letter-spacing:5px;font-weight:bold;font-size:1.6rem}
+header p{color:#d9ead3;font-style:italic;margin-top:4px}
+main{max-width:940px;margin:26px auto;padding:0 16px}
+h1{color:var(--leaf);font-size:1.5rem;margin-bottom:6px}
+h2{color:var(--leaf);margin:30px 0 10px;font-size:1.2rem;border-bottom:2px solid #c5dcc9;padding-bottom:4px}
+.note{background:#fff7e8;border-left:4px solid var(--clay);padding:10px 14px;margin:16px 0;border-radius:0 6px 6px 0}
+pre{background:#1a1a1a;color:#e6e6e6;padding:14px;border-radius:8px;overflow-x:auto;font:13px/1.45 Consolas,'Courier New',monospace;margin:8px 0}
+pre code{font-family:inherit}
+.file{font:bold 13px Consolas,monospace;color:var(--leaf);margin-top:14px}
+figure{margin:14px 0}
+figure img{max-width:100%;border:1px solid #9db8a2;border-radius:8px;background:#fff}
+figcaption{font-size:.9rem;color:#4a5a4e;margin-top:4px}
+footer{text-align:center;padding:24px;color:#4a5a4e;font-size:.9rem}
+a{color:var(--leaf)}
+a:focus-visible{outline:3px solid var(--clay);outline-offset:2px}
+</style></head>
+<body><header><div class="logo">VITALITY NOW</div><p>Health &amp; Wellness Blog &mdash; Web Technology Lab</p></header>
+<main><h1>Ex. No. 11 &ndash; Database Integration in Node.js Application Using MongoDB</h1><p>A Node.js program that connects to MongoDB with the official driver and performs insert, find, update and delete operations on CollegeDB.Students.</p>
+<div class="note">This is a server-side exercise, so GitHub Pages can only show the source and the output captured from a real local run (Node.js, MongoDB 8.2 and mongosh on the author's machine).</div>
+<h2>Source code</h2><div class="file">app.js</div><pre><code>const { MongoClient } = require('mongodb');
+
+const url = 'mongodb://127.0.0.1:27017';
+const client = new MongoClient(url);
+
+async function main() {
+    try {
+        // Connect to MongoDB
+        await client.connect();
+        console.log('Connected to MongoDB successfully');
+
+        // Select database and collection
+        const db = client.db('CollegeDB');
+        const students = db.collection('Students');
+
+        // Insert a document
+        const insertResult = await students.insertOne({
+            name: 'Arun',
+            department: 'CSE',
+            year: 2
+        });
+        console.log('Inserted ID:', insertResult.insertedId);
+
+        // Retrieve documents
+        const allStudents = await students.find({}).toArray();
+        console.log('Student Records:', allStudents);
+
+        // Update a document
+        const updateResult = await students.updateOne(
+            { name: 'Arun' },
+            { $set: { year: 3 } }
+        );
+        console.log('Updated documents:', updateResult.modifiedCount);
+
+        // Delete a document
+        const deleteResult = await students.deleteOne({
+            name: 'Arun'
+        });
+        console.log('Deleted documents:', deleteResult.deletedCount);
+    } catch (error) {
+        console.error('Database error:', error.message);
+    } finally {
+        await client.close();
+        console.log('MongoDB connection closed');
+    }
+}
+
+main();
+</code></pre>
+<div class="file">app-q5.js</div><pre><code>// Sample question 5: insert three student records and display the CSE students.
+const { MongoClient } = require('mongodb');
+
+const client = new MongoClient('mongodb://127.0.0.1:27017');
+
+async function main() {
+    try {
+        await client.connect();
+        console.log('Connected to MongoDB successfully');
+
+        const students = client.db('CollegeDB').collection('Students');
+        await students.deleteMany({});
+
+        const result = await students.insertMany([
+            { name: 'Arun', department: 'CSE', year: 2 },
+            { name: 'Priya', department: 'IT', year: 3 },
+            { name: 'Kumar', department: 'CSE', year: 1 }
+        ]);
+        console.log('Inserted documents:', result.insertedCount);
+
+        const cse = await students.find({ department: 'CSE' }).toArray();
+        console.log('CSE students:', cse);
+    } catch (error) {
+        console.error('Database error:', error.message);
+    } finally {
+        await client.close();
+        console.log('MongoDB connection closed');
+    }
+}
+
+main();
+</code></pre>
+<h2>Output</h2><figure><img src="img/terminal_app.png" alt="node app.js"><figcaption>node app.js</figcaption></figure>
+<figure><img src="img/terminal_q5.png" alt="node app-q5.js"><figcaption>node app-q5.js</figcaption></figure>
+<p style="margin-top:24px"><a href="https://github.com/NoelMS/Exp11_Web_Tech">View the repository on GitHub</a></p></main>
+<footer>Vitality Now &middot; Web Technology Lab &middot; Ex. 11</footer></body></html>
